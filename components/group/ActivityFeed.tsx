@@ -160,15 +160,15 @@ export default function ActivityFeed({ groupId, userRole }: Props) {
     }
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        >
+        <View style={styles.container}>
             <FlatList
                 data={activities}
                 renderItem={renderActivity}
                 keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContent}
+                contentContainerStyle={[
+                    styles.listContent,
+                    { paddingBottom: isCreator ? 16 : Math.max(insets.bottom + 16, 32) }
+                ]}
                 showsVerticalScrollIndicator={false}
                 ListEmptyComponent={
                     <View style={styles.emptyContainer}>
@@ -203,7 +203,7 @@ export default function ActivityFeed({ groupId, userRole }: Props) {
                     </Text>
                 </View>
             )}
-        </KeyboardAvoidingView>
+        </View>
     );
 }
 

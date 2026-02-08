@@ -684,16 +684,13 @@ birliktehatim://join/${inviteCode}
         </Pressable>
       </View>
 
-      <View style={{ height: 40 }} />
+      <View style={{ height: Math.max(insets.bottom + 20, 40) }} />
     </ScrollView>
   );
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <View style={[styles.header, { paddingTop: topInset + 8 }]}>
+    <View style={styles.container}>
+      <View style={[styles.header, { paddingTop: topInset + 12 }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </Pressable>
@@ -708,39 +705,47 @@ birliktehatim://join/${inviteCode}
         </View>
       </View>
 
-      <View style={styles.tabsContainer}>
-        <View style={styles.tabsRow}>
-          <Pressable
-            style={[styles.tabBtn, activeTab === 'status' && styles.tabBtnActive]}
-            onPress={() => setActiveTab('status')}
-          >
-            <Text style={[styles.tabText, activeTab === 'status' && styles.tabTextActive]}>Durum</Text>
-          </Pressable>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+      >
+        <View style={styles.tabsContainer}>
+          <View style={styles.tabsRow}>
+            <Pressable
+              style={[styles.tabBtn, activeTab === 'status' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('status')}
+            >
+              <Text style={[styles.tabText, activeTab === 'status' && styles.tabTextActive]}>Durum</Text>
+            </Pressable>
 
-          <Pressable
-            style={[styles.tabBtn, activeTab === 'activity' && styles.tabBtnActive]}
-            onPress={() => setActiveTab('activity')}
-          >
-            <Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Aktivite</Text>
-          </Pressable>
+            <Pressable
+              style={[styles.tabBtn, activeTab === 'activity' && styles.tabBtnActive]}
+              onPress={() => setActiveTab('activity')}
+            >
+              <Text style={[styles.tabText, activeTab === 'activity' && styles.tabTextActive]}>Aktivite</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
 
-      <View style={styles.contentContainer}>
-        {activeTab === 'status' && renderStatus()}
+        <View style={styles.contentContainer}>
+          {activeTab === 'status' && renderStatus()}
 
-        {activeTab === 'activity' && <ActivityFeed groupId={id || ''} userRole={userRole} />}
-      </View>
+          {activeTab === 'activity' && <ActivityFeed groupId={id || ''} userRole={userRole} />}
+        </View>
+      </KeyboardAvoidingView>
 
-      {readingJuz && (
-        <QuranReaderModal
-          isVisible={readerVisible}
-          onClose={() => setReaderVisible(false)}
-          juzNumber={readingJuz}
-          onComplete={() => handleCompleteJuz(readingJuz, true)}
-        />
-      )}
-    </KeyboardAvoidingView>
+      {
+        readingJuz && (
+          <QuranReaderModal
+            isVisible={readerVisible}
+            onClose={() => setReaderVisible(false)}
+            juzNumber={readingJuz}
+            onComplete={() => handleCompleteJuz(readingJuz, true)}
+          />
+        )
+      }
+    </View>
   );
 }
 
