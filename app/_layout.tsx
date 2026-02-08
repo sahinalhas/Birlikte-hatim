@@ -6,6 +6,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider } from "@/contexts/AppContext";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { notificationService } from "@/lib/notification-service";
 // import { Inter_400Regular... } lines removed
 // import { Amiri_400Regular... } lines removed
 import { Platform } from "react-native";
@@ -101,6 +102,7 @@ export default function RootLayout() {
   useEffect(() => {
     async function prepare() {
       try {
+        notificationService.init();
         // Safely load Icon fonts. 
         // We catch any errors (like timeouts) to prevent the app from crashing.
         // On slow networks (especially Web), fontfaceobserver might hit its 6000ms timeout.

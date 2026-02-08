@@ -1,20 +1,27 @@
-import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
-
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldShowAlert: true,
-        shouldPlaySound: true,
-        shouldSetBadge: true,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
+import type * as NotificationsType from 'expo-notifications';
 
 export const notificationService = {
+    init() {
+        if (Platform.OS === 'web') return;
+
+        const Notifications = require('expo-notifications');
+
+        Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+                shouldShowAlert: true,
+                shouldPlaySound: true,
+                shouldSetBadge: true,
+                shouldShowBanner: true,
+                shouldShowList: true,
+            }),
+        });
+    },
+
     async requestPermissions() {
         if (Platform.OS === 'web') return false;
 
+        const Notifications = require('expo-notifications');
         const { status: existingStatus } = await Notifications.getPermissionsAsync();
         let finalStatus = existingStatus;
 
@@ -31,6 +38,8 @@ export const notificationService = {
 
         const hasPermission = await this.requestPermissions();
         if (!hasPermission) return;
+
+        const Notifications = require('expo-notifications');
 
         // Calculate reminder time: 2 days before end date, or halfway if duration is short
         const end = new Date(endDate).getTime();
@@ -52,12 +61,13 @@ export const notificationService = {
                 body: `${juzNumber}. cüzünüz sizi bekliyor. Grubun bitmesine az kaldı! 😊`,
                 data: { type: 'juz_reminder', juzNumber },
             },
-            trigger: { date: new Date(reminderTime) } as Notifications.NotificationTriggerInput,
+            trigger: { date: new Date(reminderTime) } as NotificationsType.NotificationTriggerInput,
         });
     },
 
     async cancelAllNotifications() {
         if (Platform.OS === 'web') return;
+        const Notifications = require('expo-notifications');
         await Notifications.cancelAllScheduledNotificationsAsync();
     }
 };
