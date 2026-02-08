@@ -3,15 +3,20 @@ import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import React from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Colors from "@/constants/colors";
 
 
 
 function ClassicTabLayout() {
   const colorScheme = useColorScheme();
+  const { bottom } = useSafeAreaInsets();
   const isDark = colorScheme === "dark";
   const isWeb = Platform.OS === "web";
   const isIOS = Platform.OS === "ios";
+
+  // Dinamik yükseklik hesaplama (Safe Area dahil)
+  const tabBarHeight = isWeb ? 84 : (isIOS ? 64 + bottom : 64);
 
   return (
     <Tabs
@@ -24,9 +29,9 @@ function ClassicTabLayout() {
           backgroundColor: isIOS ? "transparent" : isDark ? "#1A1A1A" : Colors.card,
           borderTopWidth: 0,
           elevation: 0,
-          height: isIOS ? 88 : 64,
+          height: tabBarHeight,
+          paddingBottom: isIOS ? bottom : 8,
           paddingTop: 8,
-          ...(isWeb ? { height: 84 } : {}),
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.05,

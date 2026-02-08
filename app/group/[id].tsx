@@ -435,13 +435,13 @@ birliktehatim://join/${inviteCode}
         </Pressable>
       </View>
 
-      <View style={{ height: Math.max(insets.bottom + 20, 40) }} />
+      <View style={{ height: Math.max(insets.bottom + 32, 80) }} />
     </ScrollView>
   );
 
   return (
     <View style={styles.container}>
-      <View style={[styles.header, { paddingTop: topInset + 12 }]}>
+      <View style={[styles.header, { paddingTop: topInset + 16 }]}>
         <Pressable onPress={() => router.back()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={24} color={Colors.text} />
         </Pressable>

@@ -42,6 +42,7 @@ function ZikirmatikModal({ visible, onClose, group, onSync }: ZikirmatikModalPro
   const [pendingCount, setPendingCount] = useState(0);
   const pulseScale = useSharedValue(1);
   const [isSyncing, setIsSyncing] = useState(false);
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
     if (visible) {
@@ -125,7 +126,7 @@ function ZikirmatikModal({ visible, onClose, group, onSync }: ZikirmatikModalPro
       presentationStyle="pageSheet"
       onRequestClose={handleClose}
     >
-      <View style={styles.modalContainer}>
+      <View style={[styles.modalContainer, Platform.OS === 'android' && { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
         <View style={styles.modalHeader}>
           <Text style={styles.modalTitle} numberOfLines={1}>{group.title}</Text>
           <Pressable onPress={handleClose} style={styles.closeBtn} disabled={isSyncing}>

@@ -66,7 +66,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [profile?.id]);
 
-  const value: AppContextValue = {
+  const value = React.useMemo(() => ({
     groups,
     publicGroups,
     isLoadingGroups,
@@ -80,7 +80,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     updateProfile,
     refreshProfile,
     isLoadingProfile,
-  };
+  }), [
+    groups,
+    publicGroups,
+    isLoadingGroups,
+    createGroup,
+    joinGroup,
+    leaveGroup,
+    deleteGroup,
+    refreshGroups,
+    profile,
+    updateProfile,
+    refreshProfile,
+    isLoadingProfile,
+  ]);
 
   return (
     <AppContext.Provider value={value}>

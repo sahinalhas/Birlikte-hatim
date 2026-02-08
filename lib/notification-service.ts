@@ -1,13 +1,31 @@
 import { Platform } from 'react-native';
 import type * as NotificationsType from 'expo-notifications';
 
+// Lazy load notifications to avoid issues on web or if module is missing
+let Notifications: typeof NotificationsType | null = null;
+let isInitialized = false;
+
+const getNotifications = () => {
+    if (Platform.OS === 'web') return null;
+    if (Notifications) return Notifications;
+    try {
+        Notifications = require('expo-notifications');
+    } catch (error) {
+        console.warn('Failed to load expo-notifications:', error);
+        return null;
+    }
+    return Notifications;
+};
+
+
 export const notificationService = {
     init() {
-        if (Platform.OS === 'web') return;
+        if (Platform.OS === 'web' || isInitialized) return;
 
-        const Notifications = require('expo-notifications');
+        const Notif = getNotifications();
+        if (!Notif) return;
 
-        Notifications.setNotificationHandler({
+        Notif.setNotificationHandler({
             handleNotification: async () => ({
                 shouldShowAlert: true,
                 shouldPlaySound: true,
@@ -16,17 +34,21 @@ export const notificationService = {
                 shouldShowList: true,
             }),
         });
+
+        isInitialized = true;
     },
 
     async requestPermissions() {
         if (Platform.OS === 'web') return false;
 
-        const Notifications = require('expo-notifications');
-        const { status: existingStatus } = await Notifications.getPermissionsAsync();
+        const Notif = getNotifications();
+        if (!Notif) return false;
+
+        const { status: existingStatus } = await Notif.getPermissionsAsync();
         let finalStatus = existingStatus;
 
         if (existingStatus !== 'granted') {
-            const { status } = await Notifications.requestPermissionsAsync();
+            const { status } = await Notif.requestPermissionsAsync();
             finalStatus = status;
         }
 
@@ -39,7 +61,8 @@ export const notificationService = {
         const hasPermission = await this.requestPermissions();
         if (!hasPermission) return;
 
-        const Notifications = require('expo-notifications');
+        const Notif = getNotifications();
+        if (!Notif) return;
 
         // Calculate reminder time: 2 days before end date, or halfway if duration is short
         const end = new Date(endDate).getTime();
@@ -55,7 +78,7 @@ export const notificationService = {
         // If reminder time is in the past, don't schedule
         if (reminderTime <= now) return;
 
-        await Notifications.scheduleNotificationAsync({
+        await Notif.scheduleNotificationAsync({
             content: {
                 title: '📖 Hatırlatma: ' + groupTitle,
                 body: `${juzNumber}. cüzünüz sizi bekliyor. Grubun bitmesine az kaldı! 😊`,
@@ -67,7 +90,8 @@ export const notificationService = {
 
     async cancelAllNotifications() {
         if (Platform.OS === 'web') return;
-        const Notifications = require('expo-notifications');
-        await Notifications.cancelAllScheduledNotificationsAsync();
+        const Notif = getNotifications();
+        if (!Notif) return;
+        await Notif.cancelAllScheduledNotificationsAsync();
     }
 };

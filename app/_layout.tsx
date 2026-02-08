@@ -39,15 +39,16 @@ function RootLayoutNav() {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "auth";
+    const inTabsGroup = segments[0] === "(tabs)";
 
     if (!session && !inAuthGroup) {
       // Redirect to the sign-in page.
       router.replace("/auth");
-    } else if (session && inAuthGroup) {
+    } else if (session && !inTabsGroup) {
       // Redirect away from the sign-in page.
       router.replace("/(tabs)");
     }
-  }, [session, segments, isLoading]);
+  }, [session, segments[0], isLoading]);
 
   return (
     <Stack screenOptions={{ headerBackTitle: "Geri" }}>

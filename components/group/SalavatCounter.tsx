@@ -8,6 +8,8 @@ import {
     Alert,
     AppState,
     TextInput,
+    Modal,
+    KeyboardAvoidingView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -57,14 +59,20 @@ export default function SalavatCounter({ group, groupId, onAdd }: SalavatCounter
         };
     }, [pendingCount, onAdd]);
 
+    // Keep track of pendingCount in a ref for cleanup
+    const pendingCountRef = useRef(pendingCount);
+    useEffect(() => {
+        pendingCountRef.current = pendingCount;
+    }, [pendingCount]);
+
     // Sync on unmount
     useEffect(() => {
         return () => {
-            if (pendingCount > 0) {
-                onAdd(pendingCount);
+            if (pendingCountRef.current > 0) {
+                onAdd(pendingCountRef.current);
             }
         };
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [onAdd]);
 
     const animStyle = useAnimatedStyle(() => ({
         transform: [{ scale: pulseScale.value }],
@@ -183,8 +191,16 @@ export default function SalavatCounter({ group, groupId, onAdd }: SalavatCounter
             </View>
 
             {/* Manual Input Modal */}
-            {showManualInput && (
-                <View style={styles.manualInputOverlay}>
+            <Modal
+                visible={showManualInput}
+                transparent={true}
+                animationType="fade"
+                onRequestClose={() => setShowManualInput(false)}
+            >
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.manualInputOverlay}
+                >
                     <View style={styles.manualInputModal}>
                         <Text style={styles.manualInputTitle}>Manuel Sayı Girişi</Text>
                         <Text style={styles.manualInputSubtitle}>
@@ -215,8 +231,8 @@ export default function SalavatCounter({ group, groupId, onAdd }: SalavatCounter
                             </Pressable>
                         </View>
                     </View>
-                </View>
-            )}
+                </KeyboardAvoidingView>
+            </Modal>
         </View>
     );
 }
@@ -321,11 +337,10 @@ const styles = StyleSheet.create({
         color: Colors.primary,
     },
     manualInputOverlay: {
-        ...StyleSheet.absoluteFillObject,
+        flex: 1,
         backgroundColor: 'rgba(0,0,0,0.6)',
         justifyContent: 'center',
         padding: 30,
-        zIndex: 100,
     },
     manualInputModal: {
         backgroundColor: Colors.card,
