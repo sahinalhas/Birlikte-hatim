@@ -18,7 +18,7 @@ function ClassicTabLayout() {
   // Android'de tuşlarla çakışmayı önlemek için absolute pozisyonu kapatıyoruz
   // iOS'ta blur efekti için absolute kalmalı
   const isAbsolute = isIOS;
-  const tabBarHeight = isWeb ? 84 : (isIOS ? 64 + bottom : 70 + bottom);
+  const tabBarHeight = isWeb ? 80 : (isIOS ? 50 + bottom : 60 + bottom);
 
   return (
     <Tabs
@@ -32,8 +32,8 @@ function ClassicTabLayout() {
           borderTopWidth: 0,
           elevation: 8,
           height: tabBarHeight,
-          paddingBottom: isIOS ? bottom : 12 + bottom,
-          paddingTop: 8,
+          paddingBottom: isIOS ? bottom : 8 + bottom,
+          paddingTop: 6,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
           shadowOpacity: 0.1,

@@ -263,8 +263,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: Colors.card,
     borderRadius: 16,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
     marginBottom: 20,
     borderWidth: 1,
     borderColor: Colors.cardBorder,
@@ -279,7 +279,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontFamily: 'Inter_500Medium',
-    fontSize: 16,
+    fontSize: 15,
     color: Colors.text,
   },
   clearButton: {

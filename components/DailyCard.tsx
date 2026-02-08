@@ -111,21 +111,21 @@ export default function DailyCard({
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 24,
-        borderRadius: 24,
+        marginBottom: 20,
+        borderRadius: 20,
         shadowColor: Colors.primary,
-        shadowOffset: { width: 0, height: 8 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
+        elevation: 6,
     },
     pressable: {
-        borderRadius: 24,
+        borderRadius: 20,
         overflow: 'hidden',
     },
     gradient: {
-        padding: 20,
-        minHeight: 160,
+        padding: 16,
+        minHeight: 140,
         justifyContent: 'space-between',
     },
     patternContainer: {
@@ -173,9 +173,9 @@ const styles = StyleSheet.create({
     },
     content: {
         fontFamily: 'Inter_500Medium', // Changed from serif to maintain font consistency but keep it elegant
-        fontSize: 18,
+        fontSize: 16,
         color: '#FFFFFF',
-        lineHeight: 28,
+        lineHeight: 24,
         textAlign: 'center',
         letterSpacing: -0.2,
     },
