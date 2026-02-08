@@ -124,8 +124,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
     },
     gradient: {
-        padding: 24,
-        minHeight: 180,
+        padding: 20,
+        minHeight: 160,
         justifyContent: 'space-between',
     },
     patternContainer: {
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     },
     source: {
         fontFamily: 'Inter_400Regular',
-        fontSize: 13,
+        fontSize: 14,
         color: 'rgba(255,255,255,0.7)',
         textAlign: 'center',
         marginTop: 8,

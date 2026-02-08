@@ -610,7 +610,7 @@ const styles = StyleSheet.create({
   },
   heroTitle: {
     fontFamily: 'Inter_800ExtraBold',
-    fontSize: 22,
+    fontSize: 20,
     color: '#FFFFFF',
     letterSpacing: -0.5,
   },
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
   },
   heroStatValue: {
     fontFamily: 'Inter_800ExtraBold',
-    fontSize: 24,
+    fontSize: 22,
     color: '#FFFFFF',
   },
   heroStatLabel: {
@@ -680,7 +680,7 @@ const styles = StyleSheet.create({
   },
   juzSummaryValue: {
     fontFamily: 'Inter_800ExtraBold',
-    fontSize: 24,
+    fontSize: 22,
   },
   juzSummaryLabel: {
     fontFamily: 'Inter_600SemiBold',
@@ -690,7 +690,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 19,
+    fontSize: 18,
     color: Colors.text,
     marginBottom: 16,
     letterSpacing: -0.3,
@@ -731,9 +731,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     backgroundColor: Colors.card,
-    padding: 16,
-    borderRadius: 18,
-    marginBottom: 12,
+    padding: 14,
+    borderRadius: 16,
+    marginBottom: 10,
     borderWidth: 1,
     borderColor: Colors.cardBorder,
   },

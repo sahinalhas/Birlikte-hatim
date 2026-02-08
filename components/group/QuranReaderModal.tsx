@@ -178,14 +178,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 24,
-        paddingVertical: 20,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
         borderBottomWidth: 1,
         borderBottomColor: Colors.cardBorder,
     },
     headerTitle: {
         fontFamily: 'Inter_700Bold',
-        fontSize: 20,
+        fontSize: 18,
         color: Colors.text,
     },
     headerSubtitle: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        padding: 24,
+        padding: 20,
     },
     infoCard: {
         flexDirection: 'row',
@@ -237,10 +237,10 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         backgroundColor: Colors.backgroundSecondary,
-        paddingVertical: 12,
-        paddingHorizontal: 16,
+        paddingVertical: 10,
+        paddingHorizontal: 14,
         borderRadius: 12,
-        marginBottom: 20,
+        marginBottom: 16,
     },
     surahName: {
         fontFamily: 'Inter_700Bold',
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
         color: Colors.primary,
     },
     ayahRow: {
-        marginBottom: 24,
+        marginBottom: 20,
         padding: 12,
         borderRadius: 12,
     },
@@ -297,16 +297,16 @@ const styles = StyleSheet.create({
     },
     ayahTr: {
         fontFamily: 'Inter_400Regular',
-        fontSize: 15,
+        fontSize: 14,
         color: Colors.textSecondary,
         lineHeight: 22,
     },
     completeBtn: {
         backgroundColor: Colors.primary,
-        paddingVertical: 18,
-        borderRadius: 16,
+        paddingVertical: 16,
+        borderRadius: 14,
         alignItems: 'center',
-        marginTop: 20,
+        marginTop: 16,
     },
     completeBtnText: {
         fontFamily: 'Inter_700Bold',

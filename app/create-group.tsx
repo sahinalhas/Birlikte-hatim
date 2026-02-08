@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 18,
+        fontSize: 17,
         color: Colors.text,
     },
     scrollContent: {
@@ -358,10 +358,10 @@ const styles = StyleSheet.create({
     },
     sectionLabel: {
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 15,
+        fontSize: 14,
         color: Colors.text,
-        marginBottom: 10,
-        marginTop: 8,
+        marginBottom: 8,
+        marginTop: 6,
     },
     typeGrid: {
         flexDirection: 'row',
@@ -371,8 +371,8 @@ const styles = StyleSheet.create({
     typeCard: {
         flex: 1,
         backgroundColor: Colors.card,
-        borderRadius: 16,
-        padding: 14,
+        borderRadius: 14,
+        padding: 12,
         alignItems: 'center',
         borderWidth: 2,
         borderColor: Colors.cardBorder,
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
     },
     typeLabel: {
         fontFamily: 'Inter_600SemiBold',
-        fontSize: 14,
+        fontSize: 13,
         color: Colors.text,
     },
     typeLabelActive: {
@@ -405,15 +405,15 @@ const styles = StyleSheet.create({
     },
     input: {
         backgroundColor: Colors.card,
-        borderRadius: 14,
+        borderRadius: 12,
         paddingHorizontal: 16,
-        paddingVertical: 14,
+        paddingVertical: 12,
         fontFamily: 'Inter_400Regular',
         fontSize: 15,
         color: Colors.text,
         borderWidth: 1,
         borderColor: Colors.cardBorder,
-        marginBottom: 12,
+        marginBottom: 10,
     },
     multilineInput: {
         minHeight: 80,
@@ -426,8 +426,8 @@ const styles = StyleSheet.create({
     },
     durationChip: {
         flex: 1,
-        paddingVertical: 12,
-        borderRadius: 12,
+        paddingVertical: 10,
+        borderRadius: 10,
         backgroundColor: Colors.card,
         borderWidth: 1,
         borderColor: Colors.cardBorder,
@@ -456,8 +456,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         gap: 8,
-        paddingVertical: 14,
-        borderRadius: 14,
+        paddingVertical: 12,
+        borderRadius: 12,
         backgroundColor: Colors.card,
         borderWidth: 2,
         borderColor: Colors.cardBorder,
@@ -482,7 +482,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingVertical: 18,
+        paddingVertical: 14,
         gap: 10,
     },
     createBtnText: {

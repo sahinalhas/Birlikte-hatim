@@ -330,7 +330,7 @@ export function useInviteLink(inviteCode: string) {
     const { user } = useAuth();
     const queryClient = useQueryClient();
 
-    const { data: group = null, isLoading } = useQuery({
+    const { data: group = null, isLoading, error } = useQuery({
         queryKey: ['groupInvite', inviteCode],
         queryFn: () => groupsService.getGroupByInviteCode(inviteCode),
         enabled: !!inviteCode,
@@ -355,6 +355,7 @@ export function useInviteLink(inviteCode: string) {
     return {
         group,
         isLoading,
+        error,
         isJoined,
         join,
     };

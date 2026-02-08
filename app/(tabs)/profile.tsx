@@ -274,8 +274,8 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        <Pressable 
-          onPress={handleLogout} 
+        <Pressable
+          onPress={handleLogout}
           style={({ pressed }) => [
             styles.logoutAction,
             pressed && styles.logoutActionPressed
@@ -305,7 +305,7 @@ const styles = StyleSheet.create({
   },
   pageTitle: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 28,
+    fontSize: 24,
     color: Colors.text,
   },
   logoutAction: {
@@ -313,8 +313,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: Colors.error + '10',
-    paddingVertical: 16,
-    borderRadius: 16,
+    paddingVertical: 14,
+    borderRadius: 14,
     marginTop: 12,
     borderWidth: 1,
     borderColor: Colors.error + '20',
@@ -331,10 +331,10 @@ const styles = StyleSheet.create({
   },
   profileCard: {
     backgroundColor: Colors.card,
-    borderRadius: 24,
-    padding: 24,
+    borderRadius: 20,
+    padding: 18,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 20,
     borderWidth: 1,
     borderColor: Colors.cardBorder,
     shadowColor: '#000',
@@ -344,9 +344,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   avatarGradient: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 80,
+    height: 80,
+    borderRadius: 40,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 16,
@@ -371,7 +371,7 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.text,
   },
   profileEmail: {
@@ -432,8 +432,8 @@ const styles = StyleSheet.create({
   statsGridItem: {
     width: '47%' as any,
     backgroundColor: Colors.card,
-    borderRadius: 20,
-    padding: 16,
+    borderRadius: 16,
+    padding: 14,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.cardBorder,
@@ -442,7 +442,7 @@ const styles = StyleSheet.create({
   },
   statsGridValue: {
     fontFamily: 'Inter_700Bold',
-    fontSize: 24,
+    fontSize: 22,
     color: Colors.text,
   },
   statsGridLabel: {
@@ -477,8 +477,8 @@ const styles = StyleSheet.create({
   badgeCard: {
     width: '30%' as any,
     backgroundColor: Colors.card,
-    borderRadius: 16,
-    padding: 14,
+    borderRadius: 14,
+    padding: 12,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.cardBorder,
@@ -489,9 +489,9 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   badgeIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 4,

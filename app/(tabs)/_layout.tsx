@@ -15,8 +15,10 @@ function ClassicTabLayout() {
   const isWeb = Platform.OS === "web";
   const isIOS = Platform.OS === "ios";
 
-  // Dinamik yükseklik hesaplama (Safe Area dahil)
-  const tabBarHeight = isWeb ? 84 : (isIOS ? 64 + bottom : 64);
+  // Android'de tuşlarla çakışmayı önlemek için absolute pozisyonu kapatıyoruz
+  // iOS'ta blur efekti için absolute kalmalı
+  const isAbsolute = isIOS;
+  const tabBarHeight = isWeb ? 84 : (isIOS ? 64 + bottom : 70 + bottom);
 
   return (
     <Tabs
@@ -25,16 +27,16 @@ function ClassicTabLayout() {
         tabBarInactiveTintColor: Colors.textTertiary,
         headerShown: false,
         tabBarStyle: {
-          position: "absolute",
+          position: isAbsolute ? "absolute" : undefined,
           backgroundColor: isIOS ? "transparent" : isDark ? "#1A1A1A" : Colors.card,
           borderTopWidth: 0,
-          elevation: 0,
+          elevation: 8,
           height: tabBarHeight,
-          paddingBottom: isIOS ? bottom : 8,
+          paddingBottom: isIOS ? bottom : 12 + bottom,
           paddingTop: 8,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.05,
+          shadowOpacity: 0.1,
           shadowRadius: 10,
         },
         tabBarBackground: () =>
