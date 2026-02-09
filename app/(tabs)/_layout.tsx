@@ -1,3 +1,4 @@
+console.log('[DEBUG] Loading app/(tabs)/_layout.tsx');
 import { Tabs } from "expo-router";
 import { BlurView } from "expo-blur";
 import { Platform, StyleSheet, useColorScheme, View } from "react-native";

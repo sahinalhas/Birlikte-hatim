@@ -19,7 +19,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withSequence } from 'react-native-reanimated';
 
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '../../contexts/AppContext';
 import Colors from '@/constants/colors';
 import { groupsService, Group } from '@/lib/database';
 import { counterStorage } from '@/lib/counter-storage';

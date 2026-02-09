@@ -62,6 +62,16 @@ export function useGroups() {
         },
     });
 
+    // 2.5 Fetch Urgent Groups (Yardıma ihtiyaç duyanlar)
+    const {
+        data: urgentGroups = [],
+    } = useQuery({
+        queryKey: ['urgentGroups'],
+        queryFn: async () => {
+            return await groupsService.getUrgentGroups(5);
+        },
+    });
+
     // Combined loading & error states
     const isLoading = isLoadingMyGroups || isLoadingPublic;
     const error = errorMyGroups || errorPublic;
@@ -148,6 +158,7 @@ export function useGroups() {
     return {
         groups,
         publicGroups,
+        urgentGroups,
         isLoading,
         error: error as Error | null,
         refetch: refetchAll,
@@ -320,6 +331,17 @@ export function useGroupDetail(groupId: string) {
         abandonJuz,
         addCount,
         addReaction,
+        releaseJuz: useCallback(async (juzId: string) => {
+            if (!user) throw new Error('Not authenticated');
+            setIsBusy(true);
+            try {
+                await juzService.releaseJuzAssignment(juzId, user.id);
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.juzAssignments(groupId) });
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groupDetail(groupId) });
+            } finally {
+                setIsBusy(false);
+            }
+        }, [groupId, user, queryClient]),
     };
 }
 

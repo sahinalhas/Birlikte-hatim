@@ -54,6 +54,23 @@ export const groupsService = {
         return data as Group[];
     },
 
+    // Acil yardıma ihtiyacı olan grupları getir (Bitmesine az kalmış)
+    async getUrgentGroups(limit = 10) {
+        // Tamamlanma oranı %70 ile %99 arasında olan ve aktif gruplar
+        const { data, error } = await supabase
+            .from('groups')
+            .select('*')
+            .eq('status', 'active')
+            .eq('privacy', 'public')
+            .gte('completed_percentage', 70)
+            .lt('completed_percentage', 100)
+            .order('end_date', { ascending: true }) // Süresi yaklaşanlar önce
+            .limit(limit);
+
+        if (error) throw error;
+        return data as Group[];
+    },
+
     // Grup detayını getir
     async getGroup(groupId: string) {
         const { data, error } = await supabase
@@ -401,7 +418,25 @@ export const juzService = {
         return data as JuzAssignment;
     },
 
-    // Cüz bırak
+    // Cüz bırak (İptal et / Havuza geri döndür)
+    async releaseJuzAssignment(juzId: string, userId: string) {
+        const { data, error } = await supabase
+            .from('juz_assignments')
+            .update({
+                status: 'pending',
+                user_id: null,
+                started_at: null,
+            })
+            .eq('id', juzId)
+            .eq('user_id', userId)
+            .select()
+            .single();
+
+        if (error) throw error;
+        return data as JuzAssignment;
+    },
+
+    // Cüz terk et (Yapamadım olarak işaretle - log amaçlı)
     async abandonJuz(juzId: string, userId: string) {
         const { data, error } = await supabase
             .from('juz_assignments')

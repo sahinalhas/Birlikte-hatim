@@ -16,7 +16,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
-import { useApp, GroupType } from '@/contexts/AppContext';
+import { useApp, GroupType } from '../../contexts/AppContext';
 
 interface GroupTypeOption {
     type: GroupType['type'];

@@ -13,6 +13,7 @@ interface AppContextValue {
   // Groups
   groups: Group[];
   publicGroups: Group[];
+  urgentGroups: Group[];
   isLoadingGroups: boolean;
   createGroup: (groupData: any) => Promise<Group>;
   joinGroup: (groupId: string) => Promise<void>;
@@ -30,11 +31,13 @@ interface AppContextValue {
 const AppContext = createContext<AppContextValue | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  console.log('[AppProvider] Mounting...');
   const { profile, updateProfile, refreshProfile, isLoading: isLoadingProfile } = useAuth();
 
   const {
     groups,
     publicGroups,
+    urgentGroups,
     isLoading: isLoadingGroups,
     createGroup,
     joinGroup,
@@ -66,9 +69,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [profile?.id]);
 
-  const value = React.useMemo(() => ({
+  const value = React.useMemo<AppContextValue>(() => ({
     groups,
     publicGroups,
+    urgentGroups,
     isLoadingGroups,
     createGroup,
     joinGroup,
@@ -83,6 +87,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }), [
     groups,
     publicGroups,
+    urgentGroups,
     isLoadingGroups,
     createGroup,
     joinGroup,

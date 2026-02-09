@@ -130,8 +130,9 @@ function PublicGroupCard({ group, onJoin, isJoined }: { group: Group; onJoin: ()
 }
 
 export default function DiscoverScreen() {
+  console.log('[DiscoverScreen] Rendering...');
   const insets = useSafeAreaInsets();
-  const { publicGroups, groups, joinGroup } = useApp();
+  const { publicGroups, urgentGroups, groups, joinGroup } = useApp();
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -214,6 +215,50 @@ export default function DiscoverScreen() {
             </Pressable>
           ))}
         </ScrollView>
+
+        {/* Acil Yardım Gerekenler */}
+        {urgentGroups.length > 0 && !searchQuery && (
+          <View style={styles.urgentSection}>
+            <View style={styles.sectionHeader}>
+              <Ionicons name="alert-circle" size={20} color={Colors.error} />
+              <Text style={styles.sectionTitle}>Yardım Bekleyenler</Text>
+            </View>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.urgentList}
+            >
+              {urgentGroups.map(group => {
+                const progress = getProgress(group);
+                const isJoined = groups.some(g => g.id === group.id);
+
+                return (
+                  <View key={group.id} style={styles.urgentCard}>
+                    <View style={styles.urgentCardHeader}>
+                      <View style={[styles.urgentBadge, { backgroundColor: group.type === 'hatim' ? Colors.primary : Colors.accent }]}>
+                        <Text style={styles.urgentBadgeText}>{getGroupLabel(group.type)}</Text>
+                      </View>
+                      <Text style={styles.urgentPercentage}>%{Math.round(progress * 100)}</Text>
+                    </View>
+
+                    <Text style={styles.urgentTitle} numberOfLines={2}>{group.title}</Text>
+                    <Text style={styles.urgentSubtitle}>{getDaysRemaining((group as any).end_date)} gün kaldı</Text>
+
+                    <Pressable
+                      style={[styles.urgentJoinBtn, isJoined && { backgroundColor: Colors.success + '20' }]}
+                      onPress={() => handleJoin(group.id)}
+                      disabled={isJoined}
+                    >
+                      <Text style={[styles.urgentJoinText, isJoined && { color: Colors.success }]}>
+                        {isJoined ? 'Katıldın' : 'Destek Ol'}
+                      </Text>
+                    </Pressable>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          </View>
+        )}
 
         {filteredGroups.map(group => (
           <PublicGroupCard
@@ -445,5 +490,82 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_600SemiBold',
     fontSize: 16,
     color: Colors.textTertiary,
+  },
+  urgentSection: {
+    marginBottom: 24,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  sectionTitle: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 16,
+    color: Colors.text,
+  },
+  urgentList: {
+    gap: 12,
+    paddingRight: 20,
+  },
+  urgentCard: {
+    width: 160,
+    backgroundColor: Colors.card,
+    borderRadius: 16,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: Colors.error + '40', // Hafif kırmızı çerçeve
+    elevation: 2,
+    shadowColor: Colors.error,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  urgentCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  urgentBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  urgentBadgeText: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 10,
+    color: '#FFFFFF',
+  },
+  urgentPercentage: {
+    fontFamily: 'Inter_800ExtraBold',
+    fontSize: 14,
+    color: Colors.error,
+  },
+  urgentTitle: {
+    fontFamily: 'Inter_600SemiBold',
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 4,
+    height: 40,
+  },
+  urgentSubtitle: {
+    fontFamily: 'Inter_500Medium',
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 12,
+  },
+  urgentJoinBtn: {
+    backgroundColor: Colors.error,
+    paddingVertical: 8,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  urgentJoinText: {
+    fontFamily: 'Inter_700Bold',
+    fontSize: 12,
+    color: '#FFFFFF',
   },
 });

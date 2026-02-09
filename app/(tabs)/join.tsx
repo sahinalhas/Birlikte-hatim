@@ -16,7 +16,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
 import { useInviteLink } from '@/lib/hooks';
-import { useApp } from '@/contexts/AppContext';
+import { useApp } from '../../contexts/AppContext';
 
 export default function JoinGroupScreen() {
     const insets = useSafeAreaInsets();

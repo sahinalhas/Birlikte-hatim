@@ -1,20 +1,22 @@
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AppProvider } from "@/contexts/AppContext";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { notificationService } from "@/lib/notification-service";
-// import { Inter_400Regular... } lines removed
-// import { Amiri_400Regular... } lines removed
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 import * as Font from "expo-font";
+import { Ionicons, MaterialCommunityIcons, FontAwesome, MaterialIcons, FontAwesome6 } from "@expo/vector-icons";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useRouter, useSegments } from "expo-router";
+
+console.log('[DEBUG] Loading app/_layout.tsx - REWRITTEN');
 
 // Global font safety for Web
 if (Platform.OS === 'web') {
-  // Catch unhandled rejections from fontfaceobserver (internal to expo-font/icons)
   window.addEventListener('unhandledrejection', (event) => {
     if (event.reason?.message?.includes('6000ms timeout exceeded')) {
       event.preventDefault();
@@ -24,11 +26,18 @@ if (Platform.OS === 'web') {
 }
 
 if (Platform.OS !== 'web') {
-  SplashScreen.preventAutoHideAsync();
+  SplashScreen.preventAutoHideAsync().catch(() => { });
 }
 
-import { useAuth } from "@/contexts/AuthContext";
-import { useRouter, useSegments } from "expo-router";
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60 * 1000,
+      gcTime: 5 * 60 * 1000,
+      retry: 2,
+    },
+  },
+});
 
 function RootLayoutNav() {
   const { session, isLoading } = useAuth();
@@ -40,15 +49,14 @@ function RootLayoutNav() {
 
     const inAuthGroup = segments[0] === "auth";
     const inTabsGroup = segments[0] === "(tabs)";
+    // Also protect against root path "/" which redirects to tabs or auth
 
     if (!session && !inAuthGroup) {
-      // Redirect to the sign-in page.
       router.replace("/auth");
     } else if (session && inAuthGroup) {
-      // Redirect away from the sign-in page.
       router.replace("/(tabs)");
     }
-  }, [session, segments[0], isLoading]);
+  }, [session, segments, isLoading]);
 
   return (
     <Stack screenOptions={{ headerBackTitle: "Geri" }}>
@@ -64,31 +72,14 @@ function RootLayoutNav() {
   );
 }
 
-import { Ionicons, MaterialCommunityIcons, FontAwesome, MaterialIcons, FontAwesome6 } from "@expo/vector-icons";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 60 * 1000,
-      gcTime: 5 * 60 * 1000,
-      retry: 2,
-    },
-  },
-});
-
 export default function RootLayout() {
-  const [isReady, setIsReady] = React.useState(false);
+  const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     async function prepare() {
       try {
+        console.log('[RootLayout] Preparing...');
         notificationService.init();
-        // Safely load Icon fonts. 
-        // We catch any errors (like timeouts) to prevent the app from crashing.
-        // On slow networks (especially Web), fontfaceobserver might hit its 6000ms timeout.
-        // We load all common icon sets used in the app to prevent them from triggering 
-        // their own uncaught loads later.
         await Font.loadAsync({
           ...Ionicons.font,
           ...MaterialCommunityIcons.font,
@@ -96,26 +87,21 @@ export default function RootLayout() {
           ...MaterialIcons.font,
           ...FontAwesome6.font,
         }).catch(e => {
-          console.warn("Icon font loading failed or timed out:", e);
+          console.warn("Icon font loading warning:", e);
         });
       } catch (e) {
         console.warn("Unexpected error during app preparation:", e);
       } finally {
         setIsReady(true);
+        SplashScreen.hideAsync().catch(() => { });
       }
     }
 
     prepare();
   }, []);
 
-  useEffect(() => {
-    if (isReady) {
-      SplashScreen.hideAsync().catch(() => { });
-    }
-  }, [isReady]);
-
   if (!isReady) {
-    return null;
+    return null; // Or a custom Loading view
   }
 
   return (

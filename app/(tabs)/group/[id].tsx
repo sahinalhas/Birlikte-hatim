@@ -24,7 +24,8 @@ import { notificationService } from '@/lib/notification-service';
 import ActivityFeed from '@/components/group/ActivityFeed';
 import SalavatCounter from '@/components/group/SalavatCounter';
 import JuzCell from '@/components/group/JuzCell';
-import { useApp } from '@/contexts/AppContext';
+import GroupProgress from '@/components/group/GroupProgress';
+import { useApp } from '../../../contexts/AppContext';
 import { useGroupDetail } from '@/lib/hooks';
 
 function getGroupIcon(type: string) {
@@ -66,6 +67,7 @@ export default function GroupDetailScreen() {
     selectJuz,
     completeJuz,
     abandonJuz,
+    releaseJuz,
     addCount,
   } = useGroupDetail(id || '');
 
@@ -153,19 +155,19 @@ export default function GroupDetailScreen() {
     );
   };
 
-  const handleAbandonJuz = (juzNumber: number) => {
+  const handleReleaseJuz = (juzNumber: number) => {
     Alert.alert(
-      'Cüzü Bırak',
-      'Bu cüzü okumaktan vazgeçmek istediğinize emin misiniz?',
+      'Cüzü Geri Bırak',
+      'Bu cüzü okumaktan vazgeçip havuza geri bırakmak istiyor musunuz? Başkası alıp okuyabilir.',
       [
         { text: 'İptal', style: 'cancel' },
         {
-          text: 'Bırak',
+          text: 'Geri Bırak',
           style: 'destructive',
           onPress: async () => {
             const targetJuz = juzAssignments.find((j: any) => j.juz_number === juzNumber);
             if (targetJuz) {
-              await abandonJuz(targetJuz.id);
+              await releaseJuz(targetJuz.id);
             }
           },
         },
@@ -265,6 +267,12 @@ birliktehatim://join/${inviteCode}
         )}
       </LinearGradient>
 
+      <GroupProgress
+        percentage={progress * 100}
+        totalMembers={group.total_members || members.length}
+        daysLeft={daysLeft}
+      />
+
       {group.type === 'hatim' && (
         <>
           <View style={styles.juzSummary}>
@@ -332,10 +340,10 @@ birliktehatim://join/${inviteCode}
                         <View style={styles.myJuzActions}>
                           <Pressable
                             style={styles.abandonBtn}
-                            onPress={() => handleAbandonJuz(j.juz_number)}
+                            onPress={() => handleReleaseJuz(j.juz_number)}
                             disabled={isBusy}
                           >
-                            <Ionicons name="close-circle-outline" size={26} color={Colors.error} />
+                            <Ionicons name="return-down-back" size={24} color={Colors.error} />
                           </Pressable>
 
                           <Pressable

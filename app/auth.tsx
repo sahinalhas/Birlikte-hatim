@@ -17,7 +17,7 @@ import { router } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, FadeOutUp, Layout } from 'react-native-reanimated';
 
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext';
 import Colors from '@/constants/colors';
 
 type AuthMode = 'phone' | 'email' | 'otp';
