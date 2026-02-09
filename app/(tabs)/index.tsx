@@ -264,61 +264,65 @@ export default function HomeScreen() {
   }, [refetch]);
 
   const renderHatimItem = (group: Group) => (
-    <Link href={`/group/${group.id}`} asChild key={group.id}>
-      <Pressable style={styles.taskCard}>
-        <View style={styles.taskIconBox}>
-          <MaterialCommunityIcons name="book-open-page-variant" size={24} color={Colors.primary} />
+    <Pressable
+      key={group.id}
+      style={styles.taskCard}
+      onPress={() => router.push(`/(tabs)/group/${group.id}`)}
+    >
+      <View style={styles.taskIconBox}>
+        <MaterialCommunityIcons name="book-open-page-variant" size={24} color={Colors.primary} />
+      </View>
+      <View style={styles.taskInfo}>
+        <Text style={styles.taskTitle}>{group.title}</Text>
+        <Text style={styles.taskSubtitle}>Hatim okunuyor...</Text>
+        <View style={styles.progressBarBg}>
+          <View style={{ ...styles.progressBarFill, width: `${(group.current_count || 0) / 30 * 100}%` }} />
         </View>
-        <View style={styles.taskInfo}>
-          <Text style={styles.taskTitle}>{group.title}</Text>
-          <Text style={styles.taskSubtitle}>Hatim okunuyor...</Text>
-          <View style={styles.progressBarBg}>
-            <View style={{ ...styles.progressBarFill, width: `${(group.current_count || 0) / 30 * 100}%` }} />
-          </View>
-          <Text style={styles.progressText}>%{Math.round((group.current_count || 0) / 30 * 100)} Tamamlandı</Text>
-        </View>
-        <View style={styles.chevronBox}>
-          <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
-        </View>
-      </Pressable>
-    </Link>
+        <Text style={styles.progressText}>%{Math.round((group.current_count || 0) / 30 * 100)} Tamamlandı</Text>
+      </View>
+      <View style={styles.chevronBox}>
+        <Ionicons name="chevron-forward" size={20} color={Colors.textTertiary} />
+      </View>
+    </Pressable>
   );
 
   const renderZikirItem = (group: Group) => {
     const progress = group.target_count ? Math.min((group.current_count || 0) / group.target_count, 1) : 0;
     return (
-      <Link href={`/group/${group.id}`} asChild key={group.id}>
-        <Pressable style={styles.taskCard}>
-          <View style={{ ...styles.taskIconBox, backgroundColor: Colors.accent + '15' }}>
-            <MaterialCommunityIcons name="heart-multiple" size={24} color={Colors.accent} />
+      <Pressable
+        key={group.id}
+        style={styles.taskCard}
+        onPress={() => router.push(`/(tabs)/group/${group.id}`)}
+      >
+        <View style={{ ...styles.taskIconBox, backgroundColor: Colors.accent + '15' }}>
+          <MaterialCommunityIcons name="heart-multiple" size={24} color={Colors.accent} />
+        </View>
+        <View style={styles.taskInfo}>
+          <Text style={styles.taskTitle}>{group.title}</Text>
+          <Text style={styles.taskSubtitle}>
+            {(group.target_count || 0) - (group.current_count || 0)} adet kaldı
+          </Text>
+          <View style={{ ...styles.progressBarBg, backgroundColor: Colors.accent + '15' }}>
+            <View style={{ ...styles.progressBarFill, width: `${progress * 100}%`, backgroundColor: Colors.accent }} />
           </View>
-          <View style={styles.taskInfo}>
-            <Text style={styles.taskTitle}>{group.title}</Text>
-            <Text style={styles.taskSubtitle}>
-              {(group.target_count || 0) - (group.current_count || 0)} adet kaldı
-            </Text>
-            <View style={{ ...styles.progressBarBg, backgroundColor: Colors.accent + '15' }}>
-              <View style={{ ...styles.progressBarFill, width: `${progress * 100}%`, backgroundColor: Colors.accent }} />
-            </View>
-            <Text style={{ ...styles.progressText, color: Colors.accent }}>
-              %{Math.round(progress * 100)} Tamamlandı
-            </Text>
-          </View>
-          <View style={styles.chevronBox}>
-            <Pressable
-              style={styles.actionBtn}
-              onPress={(e) => {
-                // Modal açılırken navigasyonu engelle
-                e.stopPropagation();
-                setSelectedZikirGroup(group);
-              }}
-            >
-              <Text style={styles.actionBtnText}>Zikir</Text>
-            </Pressable>
-            <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} style={{ marginTop: 8, alignSelf: 'center' }} />
-          </View>
-        </Pressable>
-      </Link>
+          <Text style={{ ...styles.progressText, color: Colors.accent }}>
+            %{Math.round(progress * 100)} Tamamlandı
+          </Text>
+        </View>
+        <View style={styles.chevronBox}>
+          <Pressable
+            style={styles.actionBtn}
+            onPress={(e) => {
+              // Modal açılırken navigasyonu engelle
+              e.stopPropagation();
+              setSelectedZikirGroup(group);
+            }}
+          >
+            <Text style={styles.actionBtnText}>Zikir</Text>
+          </Pressable>
+          <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} style={{ marginTop: 8, alignSelf: 'center' }} />
+        </View>
+      </Pressable>
     );
   };
 
