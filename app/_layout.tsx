@@ -68,12 +68,6 @@ function RootLayoutNav() {
         }}
       />
       <Stack.Screen
-        name="group/[id]"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
         name="join"
         options={{
           presentation: "modal",
