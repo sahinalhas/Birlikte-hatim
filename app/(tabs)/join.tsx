@@ -78,6 +78,7 @@ export default function JoinGroupScreen() {
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            contentContainerStyle={{ paddingBottom: 100 }}
         >
             <View style={[styles.header, { paddingTop: topInset + 12 }]}>
                 <Pressable onPress={() => router.back()} style={styles.headerBtn}>

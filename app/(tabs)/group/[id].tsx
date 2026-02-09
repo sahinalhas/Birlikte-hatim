@@ -22,7 +22,6 @@ import { realtimeService } from '@/lib/database';
 import { notificationService } from '@/lib/notification-service';
 
 import ActivityFeed from '@/components/group/ActivityFeed';
-import QuranReaderModal from '@/components/group/QuranReaderModal';
 import SalavatCounter from '@/components/group/SalavatCounter';
 import JuzCell from '@/components/group/JuzCell';
 import { useApp } from '@/contexts/AppContext';
@@ -52,8 +51,7 @@ export default function GroupDetailScreen() {
   const { profile, deleteGroup } = useApp();
 
   const [activeTab, setActiveTab] = useState<'status' | 'activity'>('status');
-  const [readerVisible, setReaderVisible] = useState(false);
-  const [readingJuz, setReadingJuz] = useState<number | null>(null);
+  // Reader state removed
   const [selectedJuz, setSelectedJuz] = useState<number[]>([]);
 
   const topInset = Platform.OS === 'web' ? 67 : insets.top;
@@ -343,8 +341,7 @@ birliktehatim://join/${inviteCode}
                           <Pressable
                             style={styles.readBtn}
                             onPress={() => {
-                              setReadingJuz(j.juz_number);
-                              setReaderVisible(true);
+                              router.push(`/(tabs)/reader/${j.juz_number}`);
                             }}
                           >
                             <Ionicons name="book-outline" size={20} color={Colors.primary} />
@@ -486,16 +483,6 @@ birliktehatim://join/${inviteCode}
         </View>
       </KeyboardAvoidingView>
 
-      {
-        readingJuz && (
-          <QuranReaderModal
-            isVisible={readerVisible}
-            onClose={() => setReaderVisible(false)}
-            juzNumber={readingJuz}
-            onComplete={() => handleCompleteJuz(readingJuz, true)}
-          />
-        )
-      }
     </View>
   );
 }

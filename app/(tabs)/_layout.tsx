@@ -102,6 +102,63 @@ function ClassicTabLayout() {
           }
         }}
       />
+      <Tabs.Screen
+        name="create-group"
+        options={{
+          href: null,
+          tabBarStyle: {
+            position: isAbsolute ? "absolute" : undefined,
+            backgroundColor: isIOS ? "transparent" : isDark ? "#1A1A1A" : Colors.card,
+            borderTopWidth: 0,
+            elevation: 8,
+            height: tabBarHeight,
+            paddingBottom: isIOS ? bottom : 8 + bottom,
+            paddingTop: 6,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="join"
+        options={{
+          href: null,
+          tabBarStyle: {
+            position: isAbsolute ? "absolute" : undefined,
+            backgroundColor: isIOS ? "transparent" : isDark ? "#1A1A1A" : Colors.card,
+            borderTopWidth: 0,
+            elevation: 8,
+            height: tabBarHeight,
+            paddingBottom: isIOS ? bottom : 8 + bottom,
+            paddingTop: 6,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
+          }
+        }}
+      />
+      <Tabs.Screen
+        name="reader/[juz]"
+        options={{
+          href: null,
+          tabBarStyle: {
+            position: isAbsolute ? "absolute" : undefined,
+            backgroundColor: isIOS ? "transparent" : isDark ? "#1A1A1A" : Colors.card,
+            borderTopWidth: 0,
+            elevation: 8,
+            height: tabBarHeight,
+            paddingBottom: isIOS ? bottom : 8 + bottom,
+            paddingTop: 6,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: -4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 10,
+          }
+        }}
+      />
     </Tabs>
   );
 }

@@ -60,20 +60,6 @@ function RootLayoutNav() {
           presentation: "modal",
         }}
       />
-      <Stack.Screen
-        name="create-group"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="join"
-        options={{
-          presentation: "modal",
-          headerShown: false,
-        }}
-      />
     </Stack>
   );
 }
