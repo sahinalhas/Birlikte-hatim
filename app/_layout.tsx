@@ -44,7 +44,7 @@ function RootLayoutNav() {
     if (!session && !inAuthGroup) {
       // Redirect to the sign-in page.
       router.replace("/auth");
-    } else if (session && !inTabsGroup) {
+    } else if (session && inAuthGroup) {
       // Redirect away from the sign-in page.
       router.replace("/(tabs)");
     }

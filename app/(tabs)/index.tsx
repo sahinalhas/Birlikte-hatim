@@ -287,30 +287,38 @@ export default function HomeScreen() {
   const renderZikirItem = (group: Group) => {
     const progress = group.target_count ? Math.min((group.current_count || 0) / group.target_count, 1) : 0;
     return (
-      <Pressable
-        key={group.id}
-        style={styles.taskCard}
-        onPress={() => setSelectedZikirGroup(group)}
-      >
-        <View style={{ ...styles.taskIconBox, backgroundColor: Colors.accent + '15' }}>
-          <MaterialCommunityIcons name="heart-multiple" size={24} color={Colors.accent} />
-        </View>
-        <View style={styles.taskInfo}>
-          <Text style={styles.taskTitle}>{group.title}</Text>
-          <Text style={styles.taskSubtitle}>
-            {(group.target_count || 0) - (group.current_count || 0)} adet kaldı
-          </Text>
-          <View style={{ ...styles.progressBarBg, backgroundColor: Colors.accent + '15' }}>
-            <View style={{ ...styles.progressBarFill, width: `${progress * 100}%`, backgroundColor: Colors.accent }} />
+      <Link href={`/group/${group.id}`} asChild key={group.id}>
+        <Pressable style={styles.taskCard}>
+          <View style={{ ...styles.taskIconBox, backgroundColor: Colors.accent + '15' }}>
+            <MaterialCommunityIcons name="heart-multiple" size={24} color={Colors.accent} />
           </View>
-          <Text style={{ ...styles.progressText, color: Colors.accent }}>
-            %{Math.round(progress * 100)} Tamamlandı
-          </Text>
-        </View>
-        <View style={styles.actionBtn}>
-          <Text style={styles.actionBtnText}>Zikir Çek</Text>
-        </View>
-      </Pressable>
+          <View style={styles.taskInfo}>
+            <Text style={styles.taskTitle}>{group.title}</Text>
+            <Text style={styles.taskSubtitle}>
+              {(group.target_count || 0) - (group.current_count || 0)} adet kaldı
+            </Text>
+            <View style={{ ...styles.progressBarBg, backgroundColor: Colors.accent + '15' }}>
+              <View style={{ ...styles.progressBarFill, width: `${progress * 100}%`, backgroundColor: Colors.accent }} />
+            </View>
+            <Text style={{ ...styles.progressText, color: Colors.accent }}>
+              %{Math.round(progress * 100)} Tamamlandı
+            </Text>
+          </View>
+          <View style={styles.chevronBox}>
+            <Pressable
+              style={styles.actionBtn}
+              onPress={(e) => {
+                // Modal açılırken navigasyonu engelle
+                e.stopPropagation();
+                setSelectedZikirGroup(group);
+              }}
+            >
+              <Text style={styles.actionBtnText}>Zikir</Text>
+            </Pressable>
+            <Ionicons name="chevron-forward" size={18} color={Colors.textTertiary} style={{ marginTop: 8, alignSelf: 'center' }} />
+          </View>
+        </Pressable>
+      </Link>
     );
   };
 
