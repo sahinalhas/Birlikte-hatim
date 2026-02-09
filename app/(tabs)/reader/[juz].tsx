@@ -1,31 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     StyleSheet,
     View,
     Text,
-    ScrollView,
+    FlatList,
     Pressable,
     ActivityIndicator,
     Alert,
-    Platform
+    Platform,
+    Dimensions,
+    LayoutAnimation,
+    UIManager,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '@/constants/colors';
 import quranData from '@/assets/data/quran.json';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useApp } from '@/contexts/AppContext';
 
+// Android için LayoutAnimation aktivasyonu
+if (
+    Platform.OS === 'android' &&
+    UIManager.setLayoutAnimationEnabledExperimental
+) {
+    UIManager.setLayoutAnimationEnabledExperimental(true);
+}
+
+const { width } = Dimensions.get('window');
+
+interface Ayah {
+    id: number;
+    text: string;
+    text_ar: string;
+    surah_id?: number; // Veri yapısına göre opsiyonel olabilir
+}
+
+interface Surah {
+    id: number;
+    name: string;
+    name_ar: string;
+    ayahs: Ayah[];
+}
+
+// Flattened data type for FlatList
+type ListItem =
+    | { type: 'header'; data: { number: number; totalAyahs: number } }
+    | { type: 'surah_header'; data: Surah }
+    | { type: 'ayah'; data: Ayah; surah: Surah; index: number }
+    | { type: 'footer'; data: { juzNumber: number } };
+
 export default function QuranReaderScreen() {
     const { juz } = useLocalSearchParams<{ juz: string }>();
     const juzNumber = parseInt(juz || '1', 10);
     const insets = useSafeAreaInsets();
-    const { profile } = useApp();
+    const flatListRef = useRef<FlatList>(null);
 
     const [loading, setLoading] = useState(true);
-    const [juzContent, setJuzContent] = useState<any>(null);
-    const [lastReadAyah, setLastReadAyah] = useState<string | null>(null);
+    const [listData, setListData] = useState<ListItem[]>([]);
+    const [lastReadAyahKey, setLastReadAyahKey] = useState<string | null>(null);
+    const [expandedCardKey, setExpandedCardKey] = useState<string | null>(null);
 
     const topInset = Platform.OS === 'web' ? 67 : insets.top;
 
@@ -36,124 +72,277 @@ export default function QuranReaderScreen() {
         }
     }, [juzNumber]);
 
+    // Otomatik Scroll: Veri ve son okunan yer hazır olduğunda o konuma git
+    useEffect(() => {
+        if (!loading && listData.length > 0 && lastReadAyahKey) {
+            const index = listData.findIndex(item =>
+                item.type === 'ayah' && `${item.surah.id}_${item.data.id}` === lastReadAyahKey
+            );
+
+            if (index !== -1) {
+                // Biraz gecikme ile scroll yap ki liste render olsun
+                setTimeout(() => {
+                    flatListRef.current?.scrollToIndex({
+                        index,
+                        animated: true,
+                        viewPosition: 0.1 // Ayet ekranın üst kısmına yakın olsun
+                    });
+                }, 500);
+            }
+        }
+    }, [loading, listData, lastReadAyahKey]);
+
     const loadJuz = () => {
         setLoading(true);
-        // Real app would fetch specific JUZ, here we use our mock
-        const found = (quranData as any[]).find((j: any) => j.juz === juzNumber) || null;
-        setJuzContent(found);
+        // JSON verisini FlatList için düz bir listeye çeviriyoruz
+        const foundJuz = (quranData as any[]).find((j: any) => j.juz === juzNumber);
+
+        if (foundJuz) {
+            const data: ListItem[] = [];
+            let totalAyahCount = 0;
+
+            // Cüz Başlığı
+            data.push({
+                type: 'header',
+                data: { number: juzNumber, totalAyahs: 0 } // Sonra güncellenecek
+            });
+
+            foundJuz.surahs.forEach((surah: Surah) => {
+                // Sure Başlığı
+                data.push({ type: 'surah_header', data: surah });
+
+                // Ayetler
+                surah.ayahs.forEach((ayah, index) => {
+                    data.push({
+                        type: 'ayah',
+                        data: ayah,
+                        surah: surah,
+                        index: index + 1
+                    });
+                    totalAyahCount++;
+                });
+            });
+
+            // Footer
+            data.push({ type: 'footer', data: { juzNumber } });
+
+            // Toplam ayet sayısını güncelle (Header referansı ile değil, yeniden oluşturarak veya basitçe kabul ederek)
+            // Header verisini güncellemek yerine, render sırasında hesaplanan değeri kullanabiliriz veya state'e atabiliriz.
+            // Şimdilik basitçe ilk elemanı güncelleyelim:
+            if (data.length > 0 && data[0].type === 'header') {
+                data[0].data.totalAyahs = totalAyahCount;
+            }
+
+            setListData(data);
+        }
         setLoading(false);
     };
 
     const loadProgress = async () => {
         try {
             const progress = await AsyncStorage.getItem(`progress_juz_${juzNumber}`);
-            setLastReadAyah(progress);
+            setLastReadAyahKey(progress);
         } catch (e) {
             console.error(e);
         }
     };
 
-    const saveProgress = async (ayahId: string) => {
-        setLastReadAyah(ayahId);
+    const saveProgress = async (ayahKey: string) => {
+        setLastReadAyahKey(ayahKey);
         try {
-            await AsyncStorage.setItem(`progress_juz_${juzNumber}`, ayahId);
+            await AsyncStorage.setItem(`progress_juz_${juzNumber}`, ayahKey);
         } catch (e) {
             console.error(e);
         }
+    };
+
+    const toggleCard = (key: string) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setExpandedCardKey(prev => prev === key ? null : key);
     };
 
     const handleComplete = () => {
         Alert.alert(
-            'Okumayı Bitir',
-            'Okumayı bitirmek istediğinize emin misiniz? Geri dönüp cüzü tamamlandı olarak işaretlemeyi unutmayın.',
+            'Cüzü Tamamla',
+            'Allah kabul etsin! Cüzü bitirdin mi?',
             [
-                { text: 'Devam Et', style: 'cancel' },
+                { text: 'Okumaya Devam', style: 'cancel' },
                 {
-                    text: 'Bitir ve Çık',
+                    text: 'Bitirdim',
                     style: 'default',
                     onPress: () => {
                         router.back();
+                        // Burada bir event fırlatılabilir veya dönüşte parametre geçilebilir
+                        // Şimdilik kullanıcıya manuel işaretlemesi gerektiğini hatırlatıyoruz
+                        setTimeout(() => {
+                            Alert.alert('Hatırlatma', 'Lütfen listeden ilgili cüzü "Tamamlandı" olarak işaretlemeyi unutma.');
+                        }, 500);
                     }
                 }
             ]
         );
     };
 
+    const renderItem = ({ item }: { item: ListItem }) => {
+        if (item.type === 'header') {
+            return (
+                <View style={styles.headerContainer}>
+                    <View style={styles.headerBadge}>
+                        <Text style={styles.headerBadgeText}>{item.data.number}</Text>
+                    </View>
+                    <Text style={styles.headerTitle}>Cüz</Text>
+                    <Text style={styles.headerSubtitle}>{item.data.totalAyahs} Ayet</Text>
+                    <View style={styles.divider} />
+                </View>
+            );
+        }
+
+        if (item.type === 'surah_header') {
+            return (
+                <View style={styles.surahHeaderContainer}>
+                    <LinearGradient
+                        colors={[Colors.primary + '10', Colors.primary + '05']}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.surahHeaderContent}
+                    >
+                        <View style={styles.surahIconFrame}>
+                            <Ionicons name="book" size={18} color={Colors.primary} />
+                        </View>
+                        <Text style={styles.surahName}>{item.data.name}</Text>
+                        <View style={{ flex: 1 }} />
+                        <Text style={styles.surahNameAr}>{item.data.name_ar}</Text>
+                    </LinearGradient>
+                </View>
+            );
+        }
+
+        if (item.type === 'ayah') {
+            const { data: ayah, surah } = item;
+            const ayahKey = `${surah.id}_${ayah.id}`;
+            const isLastRead = lastReadAyahKey === ayahKey;
+            const isExpanded = expandedCardKey === ayahKey;
+
+            return (
+                <Pressable
+                    style={[
+                        styles.ayahCard,
+                        isLastRead && styles.ayahCardLastRead,
+                        isExpanded && styles.ayahCardExpanded
+                    ]}
+                    onPress={() => toggleCard(ayahKey)}
+                    onLongPress={() => saveProgress(ayahKey)}
+                    delayLongPress={300}
+                >
+                    {/* Üst Bilgi Çubuğu */}
+                    <View style={styles.ayahMetaRow}>
+                        <View style={[styles.ayahNumberBadge, isLastRead && styles.ayahNumberBadgeActive]}>
+                            <Text style={[styles.ayahNumberText, isLastRead && styles.ayahNumberTextActive]}>
+                                {ayah.id}
+                            </Text>
+                        </View>
+                        {isLastRead && (
+                            <View style={styles.lastReadLabel}>
+                                <Ionicons name="bookmark" size={12} color="#FFFFFF" />
+                                <Text style={styles.lastReadText}>Kaldığın Yer</Text>
+                            </View>
+                        )}
+                        <View style={{ flex: 1 }} />
+                        <Ionicons
+                            name={isExpanded ? "language" : "swap-horizontal"}
+                            size={16}
+                            color={Colors.textTertiary}
+                        />
+                    </View>
+
+                    {/* İçerik Alanı */}
+                    <View style={styles.ayahContent}>
+                        {/* Arapça Metin - Her zaman görünür ama expanded modda biraz daha farklı durabilir */}
+                        <Text style={[styles.ayahTextAr, isExpanded && { color: Colors.textSecondary, fontSize: 24 }]}>
+                            {ayah.text_ar}
+                        </Text>
+
+                        {/* Türkçe Meal - Sadece expand olunca görünür */}
+                        {isExpanded && (
+                            <View style={styles.translationContainer}>
+                                <View style={styles.translationDivider} />
+                                <Text style={styles.ayahTextTr}>{ayah.text}</Text>
+                            </View>
+                        )}
+                    </View>
+
+                    {/* Alt İpucu (Sadece kapalıyken) */}
+                    {!isExpanded && (
+                        <Text style={styles.tapHint}>Meal için dokun • İşaretlemek için basılı tut</Text>
+                    )}
+                </Pressable>
+            );
+        }
+
+        if (item.type === 'footer') {
+            return (
+                <View style={styles.footerContainer}>
+                    <Pressable
+                        style={({ pressed }) => [styles.finishBtn, pressed && { transform: [{ scale: 0.98 }] }]}
+                        onPress={handleComplete}
+                    >
+                        <LinearGradient
+                            colors={[Colors.primary, Colors.primaryLight]}
+                            style={styles.finishBtnGradient}
+                        >
+                            <Ionicons name="checkmark-done-circle" size={24} color="#FFFFFF" />
+                            <Text style={styles.finishBtnText}>Cüzü Bitirdim</Text>
+                        </LinearGradient>
+                    </Pressable>
+
+                    <Text style={styles.footerNote}>
+                        Allah kabul etsin 🤲
+                    </Text>
+                    <View style={{ height: 120 }} />
+                </View>
+            );
+        }
+
+        return null;
+    };
+
     return (
         <View style={styles.container}>
-            <View style={[styles.header, { paddingTop: topInset + 12 }]}>
-                <Pressable onPress={() => router.back()} style={styles.headerBtn}>
+            {/* Custom Header */}
+            <View style={[styles.navHeader, { paddingTop: topInset + 10 }]}>
+                <Pressable onPress={() => router.back()} style={styles.navBackBtn}>
                     <Ionicons name="arrow-back" size={24} color={Colors.text} />
                 </Pressable>
-                <View style={styles.headerTitleContainer}>
-                    <Text style={styles.headerTitle}>{juzNumber}. Cüz</Text>
-                    <Text style={styles.headerSubtitle}>Kur'an-ı Kerim Okuyucu</Text>
-                </View>
-                <View style={styles.headerBtn} />
+                <Text style={styles.navTitle}>{juzNumber}. Cüz Okuma</Text>
+                <View style={styles.navBackBtn} />
             </View>
 
             {loading ? (
-                <View style={styles.center}>
+                <View style={styles.loadingContainer}>
                     <ActivityIndicator size="large" color={Colors.primary} />
+                    <Text style={styles.loadingText}>Cüz Hazırlanıyor...</Text>
                 </View>
             ) : (
-                <ScrollView
-                    style={styles.reader}
-                    contentContainerStyle={styles.scrollContent}
+                <FlatList
+                    ref={flatListRef}
+                    data={listData}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => {
+                        if (item.type === 'ayah') return `${item.surah.id}_${item.data.id}`;
+                        return `${item.type}_${index}`;
+                    }}
+                    contentContainerStyle={styles.listContent}
                     showsVerticalScrollIndicator={false}
-                >
-                    <View style={styles.infoCard}>
-                        <Ionicons name="information-circle-outline" size={20} color={Colors.primary} />
-                        <Text style={styles.infoText}>
-                            Okuduğunuz ayetin üzerine dokunarak kaldığınız yeri işaretleyebilirsiniz.
-                        </Text>
-                    </View>
-
-                    {juzContent?.surahs.map((surah: any) => (
-                        <View key={surah.id} style={styles.surahContainer}>
-                            <View style={styles.surahHeader}>
-                                <Text style={styles.surahName}>{surah.name}</Text>
-                                <Text style={styles.surahNameAr}>{surah.name_ar}</Text>
-                            </View>
-
-                            {surah.ayahs.map((ayah: any) => {
-                                const ayahKey = `${surah.id}_${ayah.id}`;
-                                const isHighlighted = lastReadAyah === ayahKey;
-                                const isAyahSaved = isHighlighted;
-
-                                return (
-                                    <Pressable
-                                        key={ayah.id}
-                                        style={[styles.ayahRow, isHighlighted && styles.highlightedAyah]}
-                                        onPress={() => saveProgress(ayahKey)}
-                                    >
-                                        <View style={styles.ayahInfo}>
-                                            <View style={[styles.ayahBadge, isHighlighted && styles.highlightedBadge]}>
-                                                <Text style={[styles.ayahNumber, isHighlighted && styles.highlightedNumber]}>
-                                                    {ayah.id}
-                                                </Text>
-                                            </View>
-                                            <View style={{ flex: 1 }} />
-                                            {isAyahSaved && (
-                                                <Ionicons name="bookmark" size={16} color={Colors.success} />
-                                            )}
-                                        </View>
-                                        <View style={styles.ayahTextContainer}>
-                                            <Text style={styles.ayahAr}>{ayah.text_ar}</Text>
-                                            <Text style={styles.ayahTr}>{ayah.text}</Text>
-                                        </View>
-                                    </Pressable>
-                                );
-                            })}
-                        </View>
-                    ))}
-
-                    <Pressable style={styles.completeBtn} onPress={handleComplete}>
-                        <Text style={styles.completeBtnText}>Okumayı Bitir</Text>
-                    </Pressable>
-
-                    <View style={{ height: 100 }} />
-                </ScrollView>
+                    initialNumToRender={20}
+                    maxToRenderPerBatch={20}
+                    windowSize={10}
+                    onScrollToIndexFailed={info => {
+                        const wait = new Promise(resolve => setTimeout(resolve, 500));
+                        wait.then(() => {
+                            flatListRef.current?.scrollToIndex({ index: info.index, animated: true });
+                        });
+                    }}
+                />
             )}
         </View>
     );
@@ -164,76 +353,105 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: Colors.background,
     },
-    header: {
+    navHeader: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 16,
-        paddingBottom: 12,
+        paddingBottom: 16,
+        backgroundColor: Colors.background,
         borderBottomWidth: 1,
         borderBottomColor: Colors.cardBorder,
-        backgroundColor: Colors.background,
         zIndex: 10,
     },
-    headerBtn: {
+    navBackBtn: {
         width: 40,
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
+        borderRadius: 20,
     },
-    headerTitleContainer: {
-        alignItems: 'center',
-    },
-    headerTitle: {
+    navTitle: {
         fontFamily: 'Inter_700Bold',
-        fontSize: 18,
+        fontSize: 16,
         color: Colors.text,
     },
-    headerSubtitle: {
-        fontFamily: 'Inter_500Medium',
-        fontSize: 12,
-        color: Colors.textSecondary,
-        marginTop: 2,
-    },
-    center: {
+    loadingContainer: {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-    },
-    reader: {
-        flex: 1,
-    },
-    scrollContent: {
-        padding: 20,
-    },
-    infoCard: {
-        flexDirection: 'row',
-        backgroundColor: Colors.primary + '10',
-        padding: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-        marginBottom: 24,
         gap: 12,
     },
-    infoText: {
-        flex: 1,
+    loadingText: {
         fontFamily: 'Inter_500Medium',
-        fontSize: 13,
-        color: Colors.primary,
-        lineHeight: 18,
+        fontSize: 14,
+        color: Colors.textSecondary,
     },
-    surahContainer: {
-        marginBottom: 32,
+    listContent: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
     },
-    surahHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
+    // Header Styles
+    headerContainer: {
         alignItems: 'center',
-        backgroundColor: Colors.backgroundSecondary,
-        paddingVertical: 10,
-        paddingHorizontal: 14,
+        marginBottom: 24,
+        marginTop: 8,
+    },
+    headerBadge: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        backgroundColor: Colors.primary + '15',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 12,
+        borderWidth: 2,
+        borderColor: Colors.primary + '30',
+    },
+    headerBadgeText: {
+        fontFamily: 'Inter_800ExtraBold',
+        fontSize: 24,
+        color: Colors.primary,
+    },
+    headerTitle: {
+        fontFamily: 'Inter_700Bold',
+        fontSize: 20,
+        color: Colors.text,
+        marginBottom: 4,
+    },
+    headerSubtitle: {
+        fontFamily: 'Inter_500Medium',
+        fontSize: 14,
+        color: Colors.textSecondary,
+    },
+    divider: {
+        width: 40,
+        height: 4,
+        backgroundColor: Colors.cardBorder,
+        borderRadius: 2,
+        marginTop: 16,
+    },
+    // Surah Header Styles
+    surahHeaderContainer: {
+        marginBottom: 12,
+        marginTop: 12,
+    },
+    surahHeaderContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        padding: 12,
         borderRadius: 12,
-        marginBottom: 16,
+        borderWidth: 1,
+        borderColor: Colors.primary + '20',
+    },
+    surahIconFrame: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        backgroundColor: '#FFFFFF',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
     },
     surahName: {
         fontFamily: 'Inter_700Bold',
@@ -245,73 +463,128 @@ const styles = StyleSheet.create({
         fontSize: 20,
         color: Colors.primary,
     },
-    ayahRow: {
-        marginBottom: 20,
-        padding: 12,
-        borderRadius: 12,
-        backgroundColor: Colors.card, // Card background for better highlighting
-        borderWidth: 1,
-        borderColor: 'transparent',
-    },
-    highlightedAyah: {
-        backgroundColor: Colors.success + '10',
-        borderColor: Colors.success,
-    },
-    ayahInfo: {
-        flexDirection: 'row',
+    // Ayah Card Styles
+    ayahCard: {
+        backgroundColor: Colors.card,
+        borderRadius: 16,
+        padding: 16,
         marginBottom: 12,
-        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: Colors.cardBorder,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
     },
-    ayahBadge: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
+    ayahCardLastRead: {
+        borderColor: Colors.success,
+        backgroundColor: Colors.success + '05',
+    },
+    ayahCardExpanded: {
+        borderColor: Colors.primary,
+        backgroundColor: Colors.background,
+        elevation: 4,
+        shadowOpacity: 0.1,
+    },
+    ayahMetaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+    },
+    ayahNumberBadge: {
+        width: 24,
+        height: 24,
+        borderRadius: 8,
         backgroundColor: Colors.backgroundSecondary,
         alignItems: 'center',
         justifyContent: 'center',
     },
-    highlightedBadge: {
+    ayahNumberBadgeActive: {
         backgroundColor: Colors.success,
     },
-    ayahNumber: {
+    ayahNumberText: {
         fontFamily: 'Inter_600SemiBold',
         fontSize: 12,
         color: Colors.textSecondary,
     },
-    highlightedNumber: {
+    ayahNumberTextActive: {
         color: '#FFFFFF',
     },
-    ayahTextContainer: {
-        gap: 16,
+    lastReadLabel: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: Colors.success,
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 6,
+        marginLeft: 8,
+        gap: 4,
     },
-    ayahAr: {
+    lastReadText: {
+        fontFamily: 'Inter_600SemiBold',
+        fontSize: 10,
+        color: '#FFFFFF',
+    },
+    ayahContent: {
+        gap: 8,
+    },
+    ayahTextAr: {
         fontFamily: 'Amiri_400Regular',
-        fontSize: 26,
+        fontSize: 28,
         color: Colors.text,
         textAlign: 'right',
-        lineHeight: 48,
+        lineHeight: 50,
+        marginBottom: 4,
     },
-    ayahTr: {
+    ayahTextTr: {
         fontFamily: 'Inter_400Regular',
-        fontSize: 15,
-        color: Colors.textSecondary,
+        fontSize: 16,
+        color: Colors.text,
         lineHeight: 24,
     },
-    completeBtn: {
-        backgroundColor: Colors.primary,
-        paddingVertical: 16,
-        borderRadius: 16,
-        alignItems: 'center',
-        marginTop: 16,
-        elevation: 2,
-        shadowColor: Colors.primary,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+    translationContainer: {
+        marginTop: 8,
     },
-    completeBtnText: {
+    translationDivider: {
+        height: 1,
+        backgroundColor: Colors.divider,
+        marginBottom: 12,
+        width: '100%',
+    },
+    tapHint: {
+        fontFamily: 'Inter_400Regular',
+        fontSize: 11,
+        color: Colors.textTertiary,
+        textAlign: 'center',
+        marginTop: 8,
+    },
+    // Footer Styles
+    footerContainer: {
+        alignItems: 'center',
+        paddingTop: 20,
+    },
+    finishBtn: {
+        width: '100%',
+        borderRadius: 16,
+        overflow: 'hidden',
+        marginBottom: 16,
+    },
+    finishBtnGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 18,
+        gap: 10,
+    },
+    finishBtnText: {
         fontFamily: 'Inter_700Bold',
-        fontSize: 16,
+        fontSize: 18,
         color: '#FFFFFF',
+    },
+    footerNote: {
+        fontFamily: 'Amiri_400Regular',
+        fontSize: 16,
+        color: Colors.textSecondary,
     },
 });
