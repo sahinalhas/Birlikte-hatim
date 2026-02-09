@@ -36,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let mounted = true;
 
         // Mevcut oturumu al
-        supabase.auth.getSession().then(async ({ data: { session } }) => {
+        supabase.auth.getSession().then(async ({ data: { session } }: { data: { session: Session | null } }) => {
             if (!mounted) return;
 
             setSession(session);
@@ -50,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
         // Auth durumu değişikliklerini dinle
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-            async (event, session) => {
+            async (event: string, session: Session | null) => {
                 if (!mounted) return;
 
                 console.log('Auth state changed:', event);

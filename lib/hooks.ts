@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 import { useAuth } from '@/contexts/AuthContext';
 import {
     groupsService,
@@ -82,7 +83,7 @@ export function useGroups() {
             let currentUser = user;
             if (!currentUser) {
                 const { data } = await supabase.auth.getUser();
-                currentUser = data.user as any;
+                currentUser = data.user as SupabaseUser | null;
             }
             if (!currentUser) throw new Error('Not authenticated');
 
@@ -91,7 +92,7 @@ export function useGroups() {
                 creator_id: currentUser.id,
             });
         },
-        onSuccess: (newGroup) => {
+        onSuccess: (newGroup: any) => {
             queryClient.invalidateQueries({ queryKey: ['groups'] });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groups(user?.id) });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.publicGroups });
@@ -114,7 +115,7 @@ export function useGroups() {
 
             await groupsService.joinGroup(groupId, currentUser.id);
         },
-        onSuccess: (_, groupId) => {
+        onSuccess: (_: any, groupId: string) => {
             queryClient.invalidateQueries({ queryKey: ['groups'] });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.publicGroups });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groupDetail(groupId) });
@@ -132,7 +133,7 @@ export function useGroups() {
 
             await groupsService.leaveGroup(groupId, currentUser.id);
         },
-        onSuccess: (_, groupId) => {
+        onSuccess: (_: any, groupId: string) => {
             queryClient.invalidateQueries({ queryKey: ['groups'] });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.publicGroups });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.groupDetail(groupId) });
@@ -143,7 +144,7 @@ export function useGroups() {
         mutationFn: async (groupId: string) => {
             await groupsService.deleteGroup(groupId);
         },
-        onSuccess: (_, groupId) => {
+        onSuccess: (_: any, groupId: string) => {
             queryClient.invalidateQueries({ queryKey: ['groups'] });
             queryClient.invalidateQueries({ queryKey: QUERY_KEYS.publicGroups });
             queryClient.removeQueries({ queryKey: QUERY_KEYS.groupDetail(groupId) });

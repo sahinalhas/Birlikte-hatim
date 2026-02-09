@@ -61,7 +61,7 @@ function ClassicTabLayout() {
         name="index"
         options={{
           title: "İbadetlerim",
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons name={focused ? "home" : "home-outline"} size={26} color={color} />
           ),
         }}
@@ -70,7 +70,7 @@ function ClassicTabLayout() {
         name="discover"
         options={{
           title: "Keşfet",
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons name={focused ? "compass" : "compass-outline"} size={28} color={color} />
           ),
         }}
@@ -79,7 +79,7 @@ function ClassicTabLayout() {
         name="profile"
         options={{
           title: "Profil",
-          tabBarIcon: ({ color, size, focused }) => (
+          tabBarIcon: ({ color, size, focused }: { color: string; size: number; focused: boolean }) => (
             <Ionicons name="person" size={26} color={color} />
           ),
         }}

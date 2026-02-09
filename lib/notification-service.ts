@@ -44,11 +44,11 @@ export const notificationService = {
         const Notif = getNotifications();
         if (!Notif) return false;
 
-        const { status: existingStatus } = await Notif.getPermissionsAsync();
+        const { status: existingStatus } = await (Notif as any).getPermissionsAsync();
         let finalStatus = existingStatus;
 
         if (existingStatus !== 'granted') {
-            const { status } = await Notif.requestPermissionsAsync();
+            const { status } = await (Notif as any).requestPermissionsAsync();
             finalStatus = status;
         }
 
